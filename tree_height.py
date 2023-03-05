@@ -2,35 +2,59 @@
 
 import sys
 import threading
-import numpy
+
 
 def compute_height(n, parents):
-    
-    tree = {i: [] for i in range(n)}
+    root = None
+    position = [[] for _ in range(n)]
+
     for i in range(n):
-        if parents[i] != -1:
-            tree[parents[i]].append(i)
-
-   
-    def height(node):
-        if not tree[node]:
-            return 1
+        if parents[i] == -1:
+            root = i
         else:
-            return 1 + max(height(child) for child in tree[node])
+            position[parents[i]].append(i)
 
-    
-    root = next(i for i, p in enumerate(parents) if p == -1)
-    return height(root)
+    def max_height(b):
+        height = 1
+        if not position[b]:
+            return height
+        else:
+            for child in position[b]:
+                height = max(height, max_height(child))
+            return height + 1
+
+    return max_height(root)
+
 
 def main():
-    
-    n = int(input(""))
-    parents = list(map(int, input().split()))
+    text = input("Enter I or F: ")
 
-    
+    if "I" in text:
+        n = int(input())
+        parents = list(map(int, input().split()))
+    elif "F" in text:
+        filename = input()
+        file_path = './test/' + filename
+
+        if "a" not in filename:
+            try:
+                with open(file_path) as f:
+                    n = int(f.readline())
+                    parents = list(map(int, f.readline().split()))
+            except Exception as e:
+                print("Error:", str(e))
+                return
+        else:
+            print("invalid filename")
+            return
+
     print(compute_height(n, parents))
 
 
-sys.setrecursionlimit(10**7)
-threading.stack_size(2**27)
-threading.Thread(target=main).start()
+if __name__ == '__main__':
+    # In Python, the default limit on recursion depth is rather low,
+    # so raise it here for this problem. Note that to take advantage
+    # of bigger stack, we have to launch the computation in a new thread.
+    sys.setrecursionlimit(10 ** 7)  # max depth of recursion
+    threading.stack_size(2 ** 27)  # new thread will get stack of such size
+    threading.Thread(target=main).start()
