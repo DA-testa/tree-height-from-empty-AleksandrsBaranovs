@@ -5,26 +5,25 @@ import threading
 import numpy
 
 def compute_height(n, parents):
-    # create a list of children for each node
-    children = [[] for _ in range(n)]
-    for i, parent in enumerate(parents):
-        if parent == -1:
-            root = i
-        else:
-            children[parent].append(i)
-
-    # recursive function to compute height of a subtree
+    tree = {i: [] for i in range(n)}
+    for i in range(n):
+        if parents[i] != -1:
+            tree[parents[i]].append(i)
+    
     def height(node):
-        if not children[node]:
-            return 1
-        return 1 + max(height(child) for child in children[node])
+        if not tree[node]:
+            return 0
+        else:
+            return 1 + max(height(child) for child in tree[node])
 
-    # compute height of the whole tree
-    return height(root)
+   
+    return height(parents.index(-1))
 
-# read input values
-n = int(input())
-parents = list(map(int, input().split()))
+def main():
+    n = int(input(""))
+    parents = list(map(int, input().split()))
+    print(compute_height(n, parents))
 
-# compute and print the height of the tree
-print(compute_height(n, parents))
+sys.setrecursionlimit(10**7)
+threading.stack_size(2**27)
+threading.Thread(target=main).start()
